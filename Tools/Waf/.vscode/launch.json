@@ -1,0 +1,18 @@
+{
+   // Use IntelliSense to learn about possible attributes.
+   // Hover to view descriptions of existing attributes.
+   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+   "version": "0.2.0",
+   "configurations": [
+      {
+         "name": "Waf",
+         "type": "python",
+         "request": "launch",
+         "program": "C:/Users/Yun-Desktop/Desktop/waf/Tools/Waf/waf_proxy.py",
+         "console": "integratedTerminal",
+         "cwd": "C:/Users/Yun-Desktop/Desktop/waf/",
+         "pythonPath": "C:/Users/Yun-Desktop/Desktop/waf/Tools/Python/python.exe",
+         "args": ["configure", "clean_debug", "msvs2019", "--out", "C:/Users/Yun-Desktop/Desktop/waf/WafBuildDir", "-cwd", "C:/Users/Yun-Desktop/Desktop/waf", "-wrd", "C:/Users/Yun-Desktop/Desktop/waf/Tools/Waf", "--no-lock-in-top", "--no-lock-in-run"]
+      }
+   ]
+}

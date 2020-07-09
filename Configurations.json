@@ -1,0 +1,22 @@
+{
+   "Generic" :
+   {
+      "CXXFLAGS" : ["/nologo"]
+   },
+   "Configurations" :
+   {
+      "Debug" :
+      {
+         "CXXFLAGS" : ["/Fd", "/Od", "/ZI", "/Od", "/Oy", "/MTd"],
+         "DEFINES" : [],
+
+         "LINKFLAGS" : ["/debug"]
+      },
+      "Release":
+      {
+      },
+      "RelaseWithSymbols" :
+      {
+      }
+   }
+}
