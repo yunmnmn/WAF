@@ -11,3 +11,4 @@ TODO:
 - Profiler
 - Easier integration
 - Support for different IDEs
+- test
