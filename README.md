@@ -12,3 +12,4 @@ TODO:
 - Easier integration
 - Support for different IDEs
 - test
+- Update README
