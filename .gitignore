@@ -1,2 +1,4 @@
 ﻿.vs/
 .clang-format
+Solution/
+**__pycache__/

@@ -1,5 +1,5 @@
 // Set paths relative or absolute from where this batch file is located
 WorkingDir = .
-RootWafDir = Tools\Waf
-PythonPath = Tools\Python\python.exe
-BuildDir = WafBuildDir
+RootWafDir = Tools/Waf
+PythonPath = Tools/Python/python.exe
+BuildDir = ../WafBuildDir
