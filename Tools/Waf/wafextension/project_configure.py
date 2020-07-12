@@ -131,29 +131,30 @@ def ReadBuildTargetsData(filePath):
    # Filter out the flags that aren't available
    for environmentKey, environmentValue in BUILD_TARGETS.items():
       # Cache the environments
-      ENVIRONMENTS.append(environmentKey.lower())
+      ENVIRONMENTS.append(environmentKey)
       for platformKey, platformValue in environmentValue.items():
          for configurationKey, configurationValue in platformValue.items():
             if not ValidateConfigurationProperty(configurationKey):
                configurationValue.pop(configurationKey, None) 
 
 # Read the IDE to use from options
-def ReadIdeToolFromOption(OptionArgument):
+def ReadIdeToolFromOption(optionArgument):
    for ideKey, ideValue in IDE_DICT.items():
-      if OptionArgument in ideValue:
+      if optionArgument in ideValue:
          return ideKey, ideValue
    assert False, "IDE option isn't valid" 
 
 # Read the compiler to use from options
-def ReadCompilerFromOption(OptionArgument):
-   if OptionArgument in SUPPORTED_COMPILERS:
-      return OptionArgument
+def ReadCompilerFromOption(optionArgument):
+   if optionArgument in SUPPORTED_COMPILERS:
+      return optionArgument
    assert False, "Compiler option is not available" 
 
 # Read the compiler to use from options
-def ReadEnvironmentFromOption(OptionArgument):
-   if OptionArgument in ENVIRONMENTS:
-      return OptionArgument
+def ReadEnvironmentFromOption(optionArgument):
+   for environment in ENVIRONMENTS:
+      if environment.lower() == optionArgument:
+         return environment
    assert False, "Environment option is not available" 
 
 # Custom Task Gen functions
@@ -186,12 +187,23 @@ def propegate_configuration_vars(self):
 
 from waflib.Configure import conf 
 
+# Give the path back of the source files depending on the environment
 @conf
 def GetSourcePathFromEnvironment(bld, sourcePath, sourceFiles):
-   bla = 0
-   pass
+   # Calculate the relative path
+   relativePath = sourcePath + '\\' + 'Platform' + '\\' + bld.env.ENVIRONMENT
+   sourceArray = []
+   for sourceFile in sourceFiles:
+      sourcePath = relativePath + '\\' + sourceFile
+      sourceNode = bld.path.find_node(sourcePath)
+      # Confirm if the source exists
+      assert sourceNode != None, "Source doesn't exist" 
+      sourceArray.append(sourcePath)
+   return sourceArray
 
 @conf
-def GetIncludePathFromEnvironment(bld):
-   bla = 0
-   pass
+def GetIncludePathFromEnvironment(bld, includePath):
+   relativePath = includePath + '\\' + 'Platform' + '\\' + bld.env.ENVIRONMENT
+   includeNode = bld.path.find_node(relativePath)
+   assert includeNode != None, "Source doesn't exist" 
+   return relativePath

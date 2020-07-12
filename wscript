@@ -50,17 +50,17 @@ def options(opt):
 def configure(cnf):
    # Read the IDE to use
    ideTool, ideOption = project_configure.ReadIdeToolFromOption(cnf.options.ide)
-   cnf.env.IDE = cnf.options.ide
+   cnf.env.IDE = ideOption
    cnf.load(ideTool)
 
    # Read the compiler to use
    compilerTool = project_configure.ReadCompilerFromOption(cnf.options.compiler)
-   cnf.env.COMPILER = cnf.options.compiler
+   cnf.env.COMPILER = compilerTool
    cnf.load(compilerTool)
    
    # Read the Environment to use
    environment = project_configure.ReadEnvironmentFromOption(cnf.options.environment)
-   cnf.env.environment = cnf.options.environment
+   cnf.env.ENVIRONMENT = environment
 
    # Make the copy of the environment
    defaultEnv = cnf.env 
