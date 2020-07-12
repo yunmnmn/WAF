@@ -2,3 +2,4 @@
 .clang-format
 Solution/
 **__pycache__/
+.vscode/

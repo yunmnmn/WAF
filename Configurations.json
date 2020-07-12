@@ -18,5 +18,31 @@
       "RelaseWithSymbols" :
       {
       }
+   },
+
+   "BuildTargets":
+   {
+      "Win":
+      {
+         "x64":
+         {
+            "Debug":
+            {
+               "CXXFLAGS" : ["/Fd", "/Od", "/ZI", "/Od", "/Oy", "/MTd"],
+               "DEFINES" : [],
+      
+               "LINKFLAGS" : ["/debug"]
+            },
+            "Release":
+            {
+            },
+            "RelaseWithSymbols" :
+            {
+            }
+         }
+      },
+      "OSX":
+      {
+      }
    }
 }

@@ -10,10 +10,12 @@ WSCRIPT_MODULES = ['msvs', 'msvc']
 
 # Read and initialize all the confic files
 ####################################################################
+# Read all the BuildTarget settings, and set all the global variables
+project_configure.ReadBuildTargetsData('Configurations.json')
 # Read all the build settings, and set all the global variables
-project_configure.readBuildSettingsData('BuildSettings.json')
+project_configure.ReadBuildSettingsData('BuildSettings.json')
 # Read all the configurations, and set all the global variables
-project_configure.readConfigurationsData('Configurations.json')
+project_configure.ReadConfigurationsData('Configurations.json')
 
 # Create the build configuration commands
 ####################################################################
@@ -38,12 +40,27 @@ def options(opt):
    opt.load('msvc')
    opt.load('msvs')
 
+   opt.add_option('--environment', action='store', default='', dest='environment')
+   opt.add_option('--ide', action='store', default='', dest='ide')
+   opt.add_option('--compiler', action='store', default='', dest='compiler')
+
    # Recurse through all the subfolders, calling the wscripts
    recurse_subfolders(opt)
 
 def configure(cnf):
-   cnf.load('msvc')
-   cnf.load('msvs')
+   # Read the IDE to use
+   ideTool, ideOption = project_configure.ReadIdeToolFromOption(cnf.options.ide)
+   cnf.env.IDE = cnf.options.ide
+   cnf.load(ideTool)
+
+   # Read the compiler to use
+   compilerTool = project_configure.ReadCompilerFromOption(cnf.options.compiler)
+   cnf.env.COMPILER = cnf.options.compiler
+   cnf.load(compilerTool)
+   
+   # Read the Environment to use
+   environment = project_configure.ReadEnvironmentFromOption(cnf.options.environment)
+   cnf.env.environment = cnf.options.environment
 
    # Make the copy of the environment
    defaultEnv = cnf.env 
