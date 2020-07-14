@@ -120,6 +120,9 @@ class vsnode_target_custom(msvs.vsnode_target):
       tmp=self.path.parent.make_node(self.path.name+'.filters')
       tmp.stealth_write(filter_str)
 
+   def CreateArgumentFromProps(self, props):
+      return self.ctx.env.ENVIRONMENT + '_' + props.platform.lower() + '_' + props.configuration.lower()
+
    def get_build_params(self, props):
       """
       Override the default to add the target name
@@ -127,7 +130,8 @@ class vsnode_target_custom(msvs.vsnode_target):
       opt = '--execsolution=%s' % self.ctx.get_solution_node().win32path()
       if getattr(self, 'tg', None):
          opt += " --targets=%s" % self.tg.name
-      return (self.get_waf(), props.configuration.lower(), opt)
+      buildArgument = self.CreateArgumentFromProps(props)
+      return (self.get_waf(), buildArgument, opt)
    
    # TODO Clean this
    def get_build_params2(self, props):
@@ -137,7 +141,8 @@ class vsnode_target_custom(msvs.vsnode_target):
       opt = '--execsolution=%s' % self.ctx.get_solution_node().win32path()
       if getattr(self, 'tg', None):
          opt += " --targets=%s" % self.tg.name
-      return (self.get_waf(), props.configuration.lower(), props.configuration.lower(), opt)
+      buildArgument = self.CreateArgumentFromProps(props)
+      return (self.get_waf(), buildArgument, buildArgument, opt)
 
    def get_build_command(self, props):
       return "%s build_%s %s" % self.get_build_params(props)
