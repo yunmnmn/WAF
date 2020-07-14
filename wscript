@@ -3,6 +3,8 @@ from wafextension import project_configure
 # Used to create the build configuration variants
 from waflib.Build import BuildContext, CleanContext, InstallContext, UninstallContext
 
+from wafextension import msvs_wrapper
+
 # Static data
 ####################################################################
 # All wscript modules used
@@ -14,19 +16,19 @@ WSCRIPT_MODULES = ['msvs', 'msvc']
 project_configure.ReadBuildTargetsData('Configurations.json')
 # Read all the build settings, and set all the global variables
 project_configure.ReadBuildSettingsData('BuildSettings.json')
-# Read all the configurations, and set all the global variables
-project_configure.ReadConfigurationsData('Configurations.json')
 
 # Create the build configuration commands
 ####################################################################
-for configurationKey in project_configure.CONFIGURATIONS:
-   for y in (BuildContext, CleanContext, InstallContext, UninstallContext):
-      name = y.__name__.replace('Context','').lower()
-      class tmp(y): 
-         cmd = name + '_' + configurationKey.lower()
-         variant = configurationKey
-
-from wafextension import msvs_wrapper
+# Create WAF configurations(e.g cmd = clean_win_x64_debug, variant = win_x64_debug)
+for environmentKey, environmentValue in project_configure.BUILD_TARGETS.items():
+   for platformKey, platformValue in environmentValue.items():
+      for configurationKey in platformValue:
+         variantName = environmentKey.lower() + '_' + platformKey.lower() + '_' + configurationKey.lower()
+         for y in (BuildContext, CleanContext, InstallContext, UninstallContext):
+            className = y.__name__.replace('Context','').lower()
+            class tmp(y):  
+               cmd = className + '_' + variantName
+               variant = variantName
 
 # WAF specific code from here
 ####################################################################
@@ -66,17 +68,15 @@ def configure(cnf):
    defaultEnv = cnf.env 
 
    # Set the properties per configuration that are read from the json file
-   for configurationKey, configurationValue in project_configure.CONFIGURATIONS.items():
-      # Set the configuration specific properties
-      cnf.setenv(configurationKey.lower(), defaultEnv)
+   for environmentKey, environmentValue in project_configure.BUILD_TARGETS.items():
+      for platformKey, platformValue in environmentValue.items():
+         for configurationKey, configurationValue in platformValue.items():
+            variant = environmentKey.lower() + '_' + platformKey.lower() + '_' + configurationKey.lower()
+            cnf.setenv(variant, defaultEnv)
+            for propertyKey, propertyValue in configurationValue.items():
+               cnf.env.append_unique(propertyKey, propertyValue) 
 
-      # Set the configuration specific properties
-      for propertyKey, propertyValue in configurationValue.items():
-         cnf.env.append_unique(propertyKey, propertyValue) 
-
-      # Set the generic configuration properties
-      for genericPropertyKey, genericPropertyValue in project_configure.CONFIGURATION_GENERIC.items():
-         cnf.env.append_unique(genericPropertyKey, genericPropertyValue) 
+   msvs_wrapper.CreateMsvs(cnf)
 
    # Recurse through all the subfolders, calling the wscripts
    recurse_subfolders(cnf)

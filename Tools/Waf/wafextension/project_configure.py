@@ -13,8 +13,8 @@ IDE_DICT = dict(
 )
 # Array of supported compilers
 SUPPORTED_COMPILERS = ["msvc", "gcc"]
-# Array of s upported platforms
-SUPPORTED_PLATFORMS = ["win", "osx"]
+# Array of supported environments
+SUPPORTED_ENVIRONMENTS = ["win", "osx"]
 
 # Read and initialize all the confic files
 ####################################################################
@@ -22,23 +22,11 @@ SUPPORTED_PLATFORMS = ["win", "osx"]
 THIRD_PARTY_PATH = ''
 # The path where all projects are
 PROJECT_PATH = ''
-# The generic configuration which will hold properties that will be appliec to all configurations
-CONFIGURATION_GENERIC = {}
-# The configurations that are supported
-CONFIGURATIONS = {}
-# The platforms that are supported
-PLATFORMS = {}
-# The environments that are supported
-ENVIRONMENTS = []
 # BuildTargets full data
 BUILD_TARGETS = {}
 
-# BuildTarget, target to build for
-BUILD_TARGET = ''
-# Environment to develop in: msvs2019, eclipse, xcode, etc
-IDE = ''
-# Compiler to use: msvc, gcc, etc
-COMPILER =''
+# List of targets that have been added with its wscript
+TARGET_LIST = []
 
 # Helper functions
 ####################################################################
@@ -75,64 +63,45 @@ def ValidateConfigurationProperty(propertyKey):
    else:
       return False
 
-def ReadConfigurationValues(configurationKey, configurationValue):
-   global CONFIGURATIONS
-   if configurationKey in CONFIGURATIONS.keys():
-      assert False, "key already exists"
-   else:
-      # Create a new directory entry within the CONFIGURATIONS directory
-      CONFIGURATIONS[configurationKey] = {}
-      # Check if the property values are valid of the configurations
-      for configurationPropertyKey, configurationPropertyValue in configurationValue.items():
-         if ValidateConfigurationProperty(configurationPropertyKey):
-            CONFIGURATIONS[configurationKey][configurationPropertyKey] = configurationPropertyValue
-   return True
-
-
-# Read configurations file
-def ReadConfigurationsData(filePath):
-   global CONFIGURATION_GENERIC
-   # Read the json data
-   configurationData = ReadJson(filePath)
-
-   # Read data generic data first
-   # Check if the All configuration exists in the configuration data
-   if configurationData['Generic']:
-      for configurationGenericKey, configurationGenericValue in configurationData['Generic'].items():
-         if ValidateConfigurationProperty(configurationGenericKey):
-            CONFIGURATION_GENERIC[configurationGenericKey] = configurationGenericValue 
-         else:
-            assert False, "Invalid key in configuration data"
-
-   # Add the rest of the configurations (configurations)
-   for configurationKey, configurationValue in configurationData['Configurations'].items():
-      ReadConfigurationValues(configurationKey, configurationValue)
-
 # Returns a dictionary of flags from the environment, platform and configuration
 def GetFlagsFromConfiguration(environment, platform, configuration):
-   pass
+   flags = BUILD_TARGETS[environment][platform][configuration].items()
+   return flags
 
 # Returns an array of configurations from the environment and platform
 def GetConfigurationsFromPlatform(environment, platform):
-   pass
+   configurations = []
+   for configuration in BUILD_TARGETS[environment][platform]:
+      configurations.append(configuration)
+   return configurations
 
 # Returns an array of platforms from the environment
 def GetPlatformsFromEnvironment(environment):
-   pass
+   platforms = []
+   for platformKey in BUILD_TARGETS[environment]:
+      platforms.append(platformKey)
+   return platforms
+
+# Returns an array of environments
+def GetEnvironment():
+   environments = []
+   for environmentKey in BUILD_TARGETS:
+      environments.append(environmentKey)
+   return environments
 
 # Read the BuildTarget values
 def ReadBuildTargetsData(filePath):
    global BUILD_TARGETS
-   global ENVIRONMENTS
+
    # Read the json data
    buildTargetsData = ReadJson(filePath)
+
    # Set the BuildTargets dictionary
    BUILD_TARGETS = buildTargetsData['BuildTargets']
+
    # Filter out the flags that aren't available
-   for environmentKey, environmentValue in BUILD_TARGETS.items():
-      # Cache the environments
-      ENVIRONMENTS.append(environmentKey)
-      for platformKey, platformValue in environmentValue.items():
+   for environmentValue in BUILD_TARGETS.values():
+      for platformValue in environmentValue.values():
          for configurationKey, configurationValue in platformValue.items():
             if not ValidateConfigurationProperty(configurationKey):
                configurationValue.pop(configurationKey, None) 
@@ -152,7 +121,7 @@ def ReadCompilerFromOption(optionArgument):
 
 # Read the compiler to use from options
 def ReadEnvironmentFromOption(optionArgument):
-   for environment in ENVIRONMENTS:
+   for environment in SUPPORTED_ENVIRONMENTS:
       if environment.lower() == optionArgument:
          return environment
    assert False, "Environment option is not available" 
@@ -162,14 +131,6 @@ def ReadEnvironmentFromOption(optionArgument):
 from waflib.TaskGen import after_method, before_method, feature, taskgen_method, extension
 
 # Sets the configuration properties read from json files
-@taskgen_method
-def get_configuration_vars(self):
-   _vars = set()
-   for x in self.features:
-      if x in CONFIGURATION_PROPERTIES:
-         _vars |= CONFIGURATION_PROPERTIES[x]
-   return _vars
-
 @feature('c', 'cxx')
 @before_method('propagate_uselib_vars')
 def propegate_configuration_vars(self):
@@ -185,9 +146,11 @@ def propegate_configuration_vars(self):
          if val:
             app(var, self.to_list(val))
 
+# Environment(win, osx, linux, etc) related functions
+####################################################################
+# Give the path back of the source files depending on the environment
 from waflib.Configure import conf 
 
-# Give the path back of the source files depending on the environment
 @conf
 def GetSourcePathFromEnvironment(bld, sourcePath, sourceFiles):
    # Calculate the relative path
@@ -201,9 +164,28 @@ def GetSourcePathFromEnvironment(bld, sourcePath, sourceFiles):
       sourceArray.append(sourcePath)
    return sourceArray
 
+# Give the path back of the environment's specific include directory
 @conf
 def GetIncludePathFromEnvironment(bld, includePath):
+   includeArray = []
    relativePath = includePath + '\\' + 'Platform' + '\\' + bld.env.ENVIRONMENT
    includeNode = bld.path.find_node(relativePath)
    assert includeNode != None, "Source doesn't exist" 
-   return relativePath
+
+   includeArray.append(relativePath)
+   return includeArray
+
+# Add the target to a list to verify that it already exists
+@conf
+def TargetAdded(bld, target):
+   if target not in TARGET_LIST:
+      TARGET_LIST.append(target)
+      return True
+   else:
+      return False
+
+
+# Define a target
+@conf
+def DefineTarget(bld, **kw):
+   pass

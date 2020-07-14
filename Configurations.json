@@ -1,47 +1,26 @@
 {
-   "Generic" :
-   {
-      "CXXFLAGS" : ["/nologo"]
-   },
-   "Configurations" :
-   {
-      "Debug" :
-      {
-         "CXXFLAGS" : ["/Fd", "/Od", "/ZI", "/Od", "/Oy", "/MTd"],
-         "DEFINES" : [],
-
-         "LINKFLAGS" : ["/debug"]
-      },
-      "Release":
-      {
-      },
-      "RelaseWithSymbols" :
-      {
-      }
-   },
-
    "BuildTargets":
    {
-      "Win":
+      "win":
       {
          "x64":
          {
-            "Debug":
+            "debug":
             {
                "CXXFLAGS" : ["/Fd", "/Od", "/ZI", "/Od", "/Oy", "/MTd"],
                "DEFINES" : [],
       
                "LINKFLAGS" : ["/debug"]
             },
-            "Release":
+            "release":
             {
             },
-            "RelaseWithSymbols" :
+            "releasewithsymbols" :
             {
             }
          }
       },
-      "OSX":
+      "osx":
       {
       }
    }

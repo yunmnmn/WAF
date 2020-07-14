@@ -148,27 +148,29 @@ class vsnode_target_custom(msvs.vsnode_target):
    def get_rebuild_command(self, props):
       return "%s clean_%s build_%s %s" % self.get_build_params2(props)
 
-class msvs_2019(msvs.msvs_generator):
-   cmd = 'msvs2019'
-   numver = '12.00'
-   vsver = '2019'
-   configurations = [configurationKey for configurationKey in project_configure.CONFIGURATIONS]
-   platforms = ['x64']
-   platform_toolset_ver = 'v142'
-   vsnode_target = vsnode_target_custom
 
-   def init(self):
-      if not getattr(self, 'projects_dir', None):
-         self.projects_dir = self.srcnode.make_node('Solution/.depproj')
-         self.projects_dir.mkdir()
-      msvs.msvs_generator.init(self)
+def CreateMsvs(cnf):
+   class msvs_2019(msvs.msvs_generator):
+      cmd = 'msvs2019'
+      numver = '12.00'
+      vsver = '2019'
+      platforms = project_configure.GetPlatformsFromEnvironment(cnf.env.ENVIRONMENT)
+      configurations = [configurationKey for configurationKey in project_configure.GetConfigurationsFromPlatform(cnf.env.ENVIRONMENT, platforms[0])]
+      platform_toolset_ver = 'v142'
+      vsnode_target = vsnode_target_custom
 
-   def get_solution_node(self):
-      solution_name = getattr(self, 'solution_name', None)
-      if not solution_name:
-         solution_name = 'Solution/'+ getattr(Context.g_module, Context.APPNAME, 'project') + '.sln'
-      if os.path.isabs(solution_name):
-         self.solution_node = self.root.make_node(solution_name)
-      else:
-         self.solution_node = self.srcnode.make_node(solution_name)
-      return self.solution_node
+      def init(self):
+         if not getattr(self, 'projects_dir', None):
+            self.projects_dir = self.srcnode.make_node('Solution/.depproj')
+            self.projects_dir.mkdir()
+         msvs.msvs_generator.init(self)
+
+      def get_solution_node(self):
+         solution_name = getattr(self, 'solution_name', None)
+         if not solution_name:
+            solution_name = 'Solution/'+ getattr(Context.g_module, Context.APPNAME, 'project') + '.sln'
+         if os.path.isabs(solution_name):
+            self.solution_node = self.root.make_node(solution_name)
+         else:
+            self.solution_node = self.srcnode.make_node(solution_name)
+         return self.solution_node
