@@ -97,15 +97,15 @@ class vsnode_target_custom(msvs.vsnode_target):
          except AttributeError:
             pass
          else:
-            x.output_file = self.get_build_dir(x.configuration, tsk.outputs[0])
+            x.output_file = self.get_build_dir(x, tsk.outputs[0])
 
             # Store the absolute paths for intellisense
             includeArray = [ip.abspath() for ip in self.tg.includes_nodes]
             x.includes_search_path = ';'.join(includeArray)
 
-   def get_build_dir(self, configuration, default_build_node):
+   def get_build_dir(self, buildProperty, default_build_node):
       relative_path = default_build_node.path_from(self.ctx.bldnode)
-      out_dir = self.ctx.out_dir + '\\' + configuration + '\\' + relative_path
+      out_dir = self.ctx.out_dir + '\\' + self.ctx.env.ENVIRONMENT + '_' + buildProperty.platform + '_' + buildProperty.configuration + '\\' + relative_path
       return out_dir
 
    def write(self):
