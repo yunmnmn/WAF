@@ -3,3 +3,4 @@
 Solution/
 **__pycache__/
 .vscode/
+.lock-waf*
