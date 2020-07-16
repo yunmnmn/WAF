@@ -30,7 +30,7 @@ IF NOT EXIST %ROOT_WAF_DIR_ABS% GOTO wafRootDirNotFound
 REM REM Check if the python waf_proxy script is available
 IF NOT EXIST %WAF_PROXY_SCRIPT% GOTO wafProxyScriptNotFound 
 
-CALL "%PYTHON_PATH_ABS%" "%WAF_PROXY_SCRIPT%" "-wrd" "%ROOT_WAF_DIR_ABS%" "-cwd" "%WORKING_DIR_ABS%" "--environment" "%ENVIRONMENT%" "--ide" "%IDE%" "--compiler" "%COMPILER%" "--out" "%BUILD_DIR_ABS%" "--no-lock-in-top" "--no-lock-in-run" %*
+CALL "%PYTHON_PATH_ABS%" "%WAF_PROXY_SCRIPT%" "-wrd" "%ROOT_WAF_DIR_ABS%" "-cwd" "%WORKING_DIR_ABS%" "--environment" "%ENVIRONMENT%" "--ide" "%IDE%" "--compiler" "%COMPILER%" "--out" "%BUILD_DIR_ABS%" "--no-lock-in-top" %*
 EXIT /B
 
 :pythonNotFound
