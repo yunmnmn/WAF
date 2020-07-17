@@ -8,6 +8,7 @@ FOR /F "tokens=1,2*" %%A in ('findstr /I /N "WorkingDir" WAFSettings.ini') do SE
 FOR /F "tokens=1,2*" %%A in ('findstr /I /N "RootWafDir" WAFSettings.ini') do SET ROOT_WAF_DIR=%%C
 FOR /F "tokens=1,2*" %%A in ('findstr /I /N "PythonPath" WAFSettings.ini') do SET PYTHON_PATH=%%C
 FOR /F "tokens=1,2*" %%A in ('findstr /I /N "BuildDir" WAFSettings.ini') do SET BUILD_DIR=%%C
+FOR /F "tokens=1,2*" %%A in ('findstr /I /N "AppName" WAFSettings.ini') do SET APPNAME=%%C
 
 FOR /F "tokens=1,2*" %%A in ('findstr /I /N "Environment" WAFSettings.ini') do SET ENVIRONMENT=%%C
 FOR /F "tokens=1,2*" %%A in ('findstr /I /N "IDE" WAFSettings.ini') do SET IDE=%%C
@@ -30,7 +31,7 @@ IF NOT EXIST %ROOT_WAF_DIR_ABS% GOTO wafRootDirNotFound
 REM REM Check if the python waf_proxy script is available
 IF NOT EXIST %WAF_PROXY_SCRIPT% GOTO wafProxyScriptNotFound 
 
-CALL "%PYTHON_PATH_ABS%" "%WAF_PROXY_SCRIPT%" "-wrd" "%ROOT_WAF_DIR_ABS%" "-cwd" "%WORKING_DIR_ABS%" "--environment" "%ENVIRONMENT%" "--ide" "%IDE%" "--compiler" "%COMPILER%" "--out" "%BUILD_DIR_ABS%" "--no-lock-in-top" %*
+CALL "%PYTHON_PATH_ABS%" "%WAF_PROXY_SCRIPT%" "-wrd" "%ROOT_WAF_DIR_ABS%" "-cwd" "%WORKING_DIR_ABS%" "--environment" "%ENVIRONMENT%" "--ide" "%IDE%" "--compiler" "%COMPILER%" "--out" "%BUILD_DIR_ABS%" "--appname" "%APPNAME%" "--no-lock-in-top" %*
 EXIT /B
 
 :pythonNotFound
