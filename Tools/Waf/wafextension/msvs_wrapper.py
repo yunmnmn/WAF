@@ -153,7 +153,6 @@ class vsnode_target_custom(msvs.vsnode_target):
    def get_rebuild_command(self, props):
       return "%s clean_%s build_%s %s" % self.get_build_params2(props)
 
-
 def CreateMsvs(cnf):
    class msvs_2019(msvs.msvs_generator):
       cmd = 'msvs2019'
@@ -166,7 +165,7 @@ def CreateMsvs(cnf):
 
       def init(self):
          if not getattr(self, 'projects_dir', None):
-            self.projects_dir = self.srcnode.make_node('Solution/.depproj')
+            self.projects_dir = self.bldnode.make_node('Solution/.depproj')
             self.projects_dir.mkdir()
          msvs.msvs_generator.init(self)
 
@@ -177,5 +176,40 @@ def CreateMsvs(cnf):
          if os.path.isabs(solution_name):
             self.solution_node = self.root.make_node(solution_name)
          else:
-            self.solution_node = self.srcnode.make_node(solution_name)
+            self.solution_node = self.bldnode.make_node(solution_name)
          return self.solution_node
+
+#TODO
+from waflib.TaskGen import after_method, feature
+@feature('cxxprogram', 'cxxshlib', 'cprogram', 'cshlib', 'cxx', 'c')
+@after_method('apply_incpaths')
+def set_pdb_flags(self):            
+   if not 'msvc' in (self.env.CC_NAME, self.env.CXX_NAME):
+      return  
+
+   #  if not self.bld.is_option_true('generate_debug_info'):
+   #      return
+
+    # find the last debug symbol type of [/Z7, /Zi, /ZI] applied in cxxflags.
+   last_debug_option = ''
+   for opt in reversed(self.env['CXXFLAGS']):
+      if opt in ['/Z7', '/Zi', '/ZI']:
+         last_debug_option = opt
+         break
+
+   if last_debug_option in ['/Zi', '/ZI']:
+      for t in getattr(self, 'compiled_tasks', []):
+         pdb_folder = self.path.get_bld().make_node(t.inputs[0].name + '_' + "vc.pdb")
+         pdb_cxxflag = '/Fd{}'.format(pdb_folder.abspath())
+         t.env.append_value('CXXFLAGS', pdb_cxxflag)
+         t.env.append_value('CFLAGS', pdb_cxxflag)
+
+      # Make sure the PDB folder exists
+      # pdb_folder.mkdir()
+    
+      # Add CXX and C Flags
+
+      #   # Add PDB also to Precompiled header.  pch_task is not in compiled_tasks
+      #   if getattr(self, 'pch_task', None):
+      #       self.pch_task.env.append_value('CXXFLAGS', pdb_cxxflag)
+      #       self.pch_task.env.append_value('CFLAGS', pdb_cxxflag)
