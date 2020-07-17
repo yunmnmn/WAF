@@ -1,9 +1,8 @@
 from wafextension import project_configure
-
-# Used to create the build configuration variants
 from waflib.Build import BuildContext, CleanContext, InstallContext, UninstallContext
-
 from wafextension import msvs_wrapper
+
+APPNAME = ''
 
 # Static data
 ####################################################################
@@ -45,6 +44,7 @@ def options(opt):
    opt.add_option('--environment', action='store', default='', dest='environment')
    opt.add_option('--ide', action='store', default='', dest='ide')
    opt.add_option('--compiler', action='store', default='', dest='compiler')
+   opt.add_option('--appname', action='store', default='', dest='appname')
 
    # Recurse through all the subfolders, calling the wscripts
    recurse_subfolders(opt)
@@ -63,6 +63,10 @@ def configure(cnf):
    # Read the Environment to use
    environment = project_configure.ReadEnvironmentFromOption(cnf.options.environment)
    cnf.env.ENVIRONMENT = environment
+
+   # Read the appname
+   global APPNAME
+   APPNAME = cnf.options.appname
 
    # Make the copy of the environment
    defaultEnv = cnf.env 
