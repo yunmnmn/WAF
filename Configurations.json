@@ -7,8 +7,8 @@
          {
             "debug":
             {
-               "CXXFLAGS" : ["/Fd", "/Od", "/ZI", "/Od", "/Oy", "/MTd"],
-               "DEFINES" : [],
+               "CXXFLAGS" : ["/FS", "/Od", "/ZI", "/Od", "/Oy", "/MTd", "/GS", "/TP", "/WX", "/Ob0", "/Zc:inline", "/fp:precise"],
+               "DEFINES" : ["WIN32", "_WINDOWS", "NOMINMAX", "_CRT_SECURE_NO_WARNINGS"],
       
                "LINKFLAGS" : ["/debug"]
             },
