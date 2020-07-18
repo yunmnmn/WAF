@@ -154,7 +154,7 @@ from waflib.Configure import conf
 @conf
 def GetSourcePathFromEnvironment(bld, sourcePath, sourceFiles):
    # Calculate the relative path
-   relativePath = sourcePath + '\\' + 'Platform' + '\\' + bld.env.ENVIRONMENT
+   relativePath = sourcePath + '\\' + '_Platform' + '\\' + bld.env.ENVIRONMENT
    sourceArray = []
    for sourceFile in sourceFiles:
       sourcePath = relativePath + '\\' + sourceFile
@@ -168,7 +168,7 @@ def GetSourcePathFromEnvironment(bld, sourcePath, sourceFiles):
 @conf
 def GetIncludePathFromEnvironment(bld, includePath):
    includeArray = []
-   relativePath = includePath + '\\' + 'Platform' + '\\' + bld.env.ENVIRONMENT
+   relativePath = includePath + '\\' + '_Platform' + '\\' + bld.env.ENVIRONMENT
    includeNode = bld.path.find_node(relativePath)
    assert includeNode != None, "Source doesn't exist" 
 
@@ -183,7 +183,6 @@ def TargetAdded(bld, target):
       return True
    else:
       return False
-
 
 # Define a target
 @conf

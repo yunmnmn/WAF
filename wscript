@@ -2,12 +2,8 @@ from wafextension import project_configure
 from waflib.Build import BuildContext, CleanContext, InstallContext, UninstallContext
 from wafextension import msvs_wrapper
 
+# Name of the app
 APPNAME = ''
-
-# Static data
-####################################################################
-# All wscript modules used
-WSCRIPT_MODULES = ['msvs', 'msvc']
 
 # Read and initialize all the confic files
 ####################################################################

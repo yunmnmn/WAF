@@ -8,7 +8,7 @@
             "debug":
             {
                "CXXFLAGS" : [ "/FS", "/Od", "/ZI", "/Od", "/Oy", "/MTd", "/GS", "/TP", 
-                              "/WX", "/Ob0", "/Zc:inline", "/fp:precise", "/std:c++latest"],
+                              "/WX", "/Ob0", "/Zc:inline", "/fp:precise", "/std:c++latest", "/EHsc"],
                "DEFINES" : ["WIN32", "_WINDOWS", "NOMINMAX", "_CRT_SECURE_NO_WARNINGS"],
       
                "LINKFLAGS" : ["/debug"]
