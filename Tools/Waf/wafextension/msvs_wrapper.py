@@ -100,8 +100,12 @@ class vsnode_target_custom(msvs.vsnode_target):
             x.output_file = self.get_build_dir(x, tsk.outputs[0])
 
             # Store the absolute paths for intellisense
-            includeArray = [ip.abspath() for ip in self.tg.includes_nodes]
+            includeArray = [includePath.abspath() for includePath in self.tg.includes_nodes]
             x.includes_search_path = ';'.join(includeArray)
+
+            # Set the defines in the configuration for the project
+            defineArray = [define for define in self.tg.defines]
+            x.preprocessor_definitions = ';'.join(defineArray)
 
    def get_build_dir(self, buildProperty, default_build_node):
       relative_path = default_build_node.path_from(self.ctx.bldnode)
