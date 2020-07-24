@@ -7,14 +7,18 @@
          {
             "debug":
             {
-               "CXXFLAGS" : [ "/FS", "/Od", "/ZI", "/Od", "/Oy", "/MTd", "/GS", "/TP", 
-                              "/WX", "/Ob0", "/Zc:inline", "/fp:precise", "/std:c++latest", "/EHsc"],
+               "CXXFLAGS" : [ "/Gd", "/FS", "/Od", "/ZI", "/Od", "/Oy", "/MTd", "/GS", "/TP", 
+                              "/WX", "/Ob0", "/Zc:wchar_t", "/Zc:inline", "/fp:precise", "/std:c++latest", "/EHsc"],
                "DEFINES" : ["WIN32", "_WINDOWS", "NOMINMAX", "_CRT_SECURE_NO_WARNINGS"],
       
-               "LINKFLAGS" : ["/debug"]
+               "LINKFLAGS" : ["/debug", "/MACHINE:X64", "/ERRORREPORT:PROMPT"]
             },
             "release":
             {
+               "CXXFLAGS" : ["/GS","/TP", "/std:c++latest", "/WX", "/Gm-", "/O2","/Ob2", "/Zc:inline", "/fp:precise",
+                              "/Gd", "/Zc:forScope", "/MD", "/EHsc"],
+               "DEFINES" : ["NDEBUG", "WIN32", "_WINDOWS", "NOMINMAX", "_CRT_SECURE_NO_WARNINGS"],
+               "LINKFLAGS" : ["/MACHINE:X64", "/ERRORREPORT:PROMPT"]
             },
             "releasewithsymbols" :
             {
