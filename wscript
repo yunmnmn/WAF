@@ -2,6 +2,10 @@ from wafextension import project_configure
 from waflib.Build import BuildContext, CleanContext, InstallContext, UninstallContext
 from wafextension import msvs_wrapper
 
+# TODO: Fix dependencies
+from waflib.Tools import c_preproc
+c_preproc.go_absolute = True
+
 # Name of the app
 APPNAME = ''
 
@@ -55,7 +59,10 @@ def configure(cnf):
    compilerTool = project_configure.ReadCompilerFromOption(cnf.options.compiler)
    cnf.env.COMPILER = compilerTool
    cnf.load(compilerTool)
-   
+
+   # test
+   #cnf.load('msvcdeps')
+
    # Read the Environment to use
    environment = project_configure.ReadEnvironmentFromOption(cnf.options.environment)
    cnf.env.ENVIRONMENT = environment

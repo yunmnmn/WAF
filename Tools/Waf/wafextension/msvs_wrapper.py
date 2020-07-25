@@ -184,7 +184,7 @@ def CreateMsvs(cnf):
          return self.solution_node
 
 #TODO
-from waflib.TaskGen import after_method, feature
+from waflib.TaskGen import after_method, before_method, feature
 @feature('cxxprogram', 'cxxshlib', 'cprogram', 'cshlib', 'cxx', 'c')
 @after_method('apply_incpaths')
 def set_pdb_flags(self):            
