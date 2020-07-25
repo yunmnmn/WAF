@@ -1,6 +1,7 @@
 from wafextension import project_configure
 from waflib.Build import BuildContext, CleanContext, InstallContext, UninstallContext
 from wafextension import msvs_wrapper
+from waflib import Configure
 
 from waflib import Context
 
@@ -10,6 +11,29 @@ from waflib.Tools import c_preproc
 
 # Name of the app
 APPNAME = ''
+
+def create_variant(ctx):
+   CreateConfigurations(ctx)
+
+def CreateConfigurations(ctx):
+   # Read and initialize all the confic files
+   ####################################################################
+   # Read all the BuildTarget settings, and set all the global variables
+   project_configure.ReadBuildTargetsData(ctx.options.wrd + "\\" + 'Configurations.json')
+   # Read all the build settings, and set all the global variables
+   project_configure.ReadBuildSettingsData(ctx.options.wrd + "\\" + 'BuildSettings.json')
+   # Create the build configuration commands
+   ####################################################################
+   # Create WAF configurations(e.g cmd = clean_win_x64_debug, variant = win_x64_debug)
+   for environmentKey, environmentValue in project_configure.BUILD_TARGETS.items():
+      for platformKey, platformValue in environmentValue.items():
+         for configurationKey in platformValue:
+            variantName = environmentKey.lower() + '_' + platformKey.lower() + '_' + configurationKey.lower()
+            for y in (BuildContext, CleanContext, InstallContext, UninstallContext):
+               className = y.__name__.replace('Context','').lower()
+               class tmp(y):  
+                  cmd = className + '_' + variantName
+                  variant = variantName
 
 # WAF specific code from here
 ####################################################################
@@ -33,26 +57,8 @@ def options(opt):
    recurse_subfolders(opt)
 
 def configure(cnf):
-   # Read and initialize all the confic files
-   ####################################################################
-   # Read all the BuildTarget settings, and set all the global variables
-   project_configure.ReadBuildTargetsData( cnf.options.wrd + "\\" + 'Configurations.json')
-   # Read all the build settings, and set all the global variables
-   project_configure.ReadBuildSettingsData(  cnf.options.wrd + "\\" + 'BuildSettings.json')
+   CreateConfigurations(cnf)
 
-   # Create the build configuration commands
-   ####################################################################
-   # Create WAF configurations(e.g cmd = clean_win_x64_debug, variant = win_x64_debug)
-   for environmentKey, environmentValue in project_configure.BUILD_TARGETS.items():
-      for platformKey, platformValue in environmentValue.items():
-         for configurationKey in platformValue:
-            variantName = environmentKey.lower() + '_' + platformKey.lower() + '_' + configurationKey.lower()
-            for y in (BuildContext, CleanContext, InstallContext, UninstallContext):
-               className = y.__name__.replace('Context','').lower()
-               class tmp(y):  
-                  cmd = className + '_' + variantName
-                  variant = variantName
-   
    # Read the IDE to use
    ideTool, ideOption = project_configure.ReadIdeToolFromOption(cnf.options.ide)
    cnf.env.IDE = ideOption
@@ -63,7 +69,10 @@ def configure(cnf):
    cnf.env.COMPILER = compilerTool
    cnf.load(compilerTool)
 
-   # test
+   # Set the WafRootDir
+   cnf.env.WafRootDir = cnf.options.wrd
+
+   # test, TODO
    cnf.load('msvcdeps')
 
    # Read the Environment to use

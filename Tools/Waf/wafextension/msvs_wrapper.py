@@ -48,7 +48,7 @@ PROJECT_2019_TEMPLATE=r'''<?xml version="1.0" encoding="UTF-8"?>
       <NMakeReBuildCommandLine>${xml:project.get_rebuild_command(b)}</NMakeReBuildCommandLine>
       <NMakeCleanCommandLine>${xml:project.get_clean_command(b)}</NMakeCleanCommandLine>
       <NMakeIncludeSearchPath>${xml:b.includes_search_path}</NMakeIncludeSearchPath>
-		<NMakePreprocessorDefinitions>${xml:b.preprocessor_definitions};$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+      <NMakePreprocessorDefinitions>${xml:b.preprocessor_definitions};$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
       <IncludePath>${xml:b.includes_search_path}</IncludePath>
       <ExecutablePath>$(ExecutablePath)</ExecutablePath>
 
@@ -123,6 +123,9 @@ class vsnode_target_custom(msvs.vsnode_target):
       filter_str=msvs.rm_blank_lines(filter_str)
       tmp=self.path.parent.make_node(self.path.name+'.filters')
       tmp.stealth_write(filter_str)
+   
+   def get_waf(self):
+      return 'cd /d "%s" & %s' % (self.ctx.env.WafRootDir, getattr(self.ctx, 'waf_command', 'waf.bat'))
 
    def CreateArgumentFromProps(self, props):
       return self.ctx.env.ENVIRONMENT + '_' + props.platform.lower() + '_' + props.configuration.lower()
@@ -135,7 +138,8 @@ class vsnode_target_custom(msvs.vsnode_target):
       if getattr(self, 'tg', None):
          opt += " --targets=%s" % self.tg.name
       buildArgument = self.CreateArgumentFromProps(props)
-      return (self.get_waf(), buildArgument, opt)
+      #TODO HARDCODED
+      return (self.get_waf(), "create_variant", buildArgument, opt)
    
    # TODO Clean this
    def get_build_params2(self, props):
@@ -146,16 +150,17 @@ class vsnode_target_custom(msvs.vsnode_target):
       if getattr(self, 'tg', None):
          opt += " --targets=%s" % self.tg.name
       buildArgument = self.CreateArgumentFromProps(props)
-      return (self.get_waf(), buildArgument, buildArgument, opt)
+      return (self.get_waf(), buildArgument, "create_variant", buildArgument, opt)
 
    def get_build_command(self, props):
-      return "%s build_%s %s" % self.get_build_params(props)
+      return "%s %s build_%s %s" % self.get_build_params(props)
 
    def get_clean_command(self, props):
-      return "%s clean_%s %s" % self.get_build_params(props)
+      #TODO: one too many comment create_variant
+      return "%s %s clean_%s %s" % self.get_build_params(props)
 
    def get_rebuild_command(self, props):
-      return "%s clean_%s build_%s %s" % self.get_build_params2(props)
+      return "%s clean_%s %s build_%s %s" % self.get_build_params2(props)
 
 def CreateMsvs(cnf):
    class msvs_2019(msvs.msvs_generator):
@@ -171,7 +176,28 @@ def CreateMsvs(cnf):
          if not getattr(self, 'projects_dir', None):
             self.projects_dir = self.bldnode.make_node('Solution/.depproj')
             self.projects_dir.mkdir()
-         msvs.msvs_generator.init(self)
+
+         if not getattr(self, 'configurations', None):
+            self.configurations = ['Release'] # LocalRelease, RemoteDebug, etc
+         if not getattr(self, 'platforms', None):
+            self.platforms = ['Win32']
+         if not getattr(self, 'all_projects', None):
+            self.all_projects = []
+         if not getattr(self, 'project_extension', None):
+            self.project_extension = '.vcxproj'
+         if not getattr(self, 'projects_dir', None):
+            self.projects_dir = self.srcnode.make_node('.depproj')
+            self.projects_dir.mkdir()
+
+         # bind the classes to the object, so that subclass can provide custom generators
+         if not getattr(self, 'vsnode_vsdir', None):
+            self.vsnode_vsdir = msvs.vsnode_vsdir
+         if not getattr(self, 'vsnode_target', None):
+            self.vsnode_target = msvs.vsnode_target
+         if not getattr(self, 'vsnode_build_all', None):
+            self.vsnode_build_all = msvs.vsnode_build_all
+         if not getattr(self, 'vsnode_install_all', None):
+            self.vsnode_install_all = msvs.vsnode_install_all
 
       def get_solution_node(self):
          solution_name = getattr(self, 'solution_name', None)
@@ -182,6 +208,24 @@ def CreateMsvs(cnf):
          else:
             self.solution_node = self.bldnode.make_node(solution_name)
          return self.solution_node
+
+      def add_aliases(self):
+         """
+         Add a specific target that emulates the "make all" necessary for Visual studio when pressing F7
+         We also add an alias for "make install" (disabled by default)
+         """
+         base = getattr(self, 'projects_dir', None) or self.tg.path
+
+         node_project = base.make_node('build_all_projects' + self.project_extension) # Node
+         p_build = self.vsnode_build_all(self, node_project)
+         p_build.collect_properties()
+         self.all_projects.append(p_build)
+
+         node_project = base.make_node('install_all_projects' + self.project_extension) # Node
+         p_install = self.vsnode_install_all(self, node_project)
+         p_install.collect_properties()
+         self.all_projects.append(p_install)
+      
 
 #TODO
 from waflib.TaskGen import after_method, before_method, feature
