@@ -32,7 +32,8 @@ TARGET_LIST = []
 ####################################################################
 # Read a json file
 def ReadJson(path):
-   with open(path) as json_file:
+   normPath = os.path.normpath(path)
+   with open(normPath) as json_file:
       json_data = json.load(json_file)
       return json_data
 

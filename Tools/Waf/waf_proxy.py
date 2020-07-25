@@ -15,7 +15,7 @@ cwd = os.getcwd()
 
 # Set the WAF directory
 wafdir = ""
-cwdArgPos = [i for i,x in enumerate(sys.argv) if x == '-wrd']
+cwdArgPos = [i for i,x in enumerate(sys.argv) if x == '-wrdlib']
 if cwdArgPos: 
    wafdir = os.path.normpath(sys.argv[cwdArgPos[0] + 1])
    # Clear out these arguments as waf will try to process them

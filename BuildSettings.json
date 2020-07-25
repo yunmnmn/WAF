@@ -1,4 +1,4 @@
 {
-   "ThirdPartyPath": "../ThirdParty", 
-   "ProjectsPath": "../Projects" 
+   "ThirdPartyPath": "Code/ThirdParty", 
+   "ProjectsPath": "Code/Projects" 
 }
