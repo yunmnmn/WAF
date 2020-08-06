@@ -2,7 +2,11 @@
 
 REM Name of the waf proxy file
 SET WAF_PROXY=/waf_proxy.py
-SET WAF_ROOT_DIR =%~dp0 
+
+REM Get current directory
+SET WAF_ROOT_DIR=%~dp0
+REM remove the trailing slash
+IF %WAF_ROOT_DIR:~-1%==\ SET WAF_ROOT_DIR=%WAF_ROOT_DIR:~0,-1%
 
 REM Read the settings variables
 FOR /F "tokens=1,2*" %%A in ('findstr /I /N "WorkingDir" WAFSettings.ini') do SET WORKING_DIR=%%C
@@ -32,7 +36,7 @@ IF NOT EXIST %ROOT_WAF_LIB_DIR_ABS% GOTO wafRootLibDirNotFound
 REM REM Check if the python waf_proxy script is available
 IF NOT EXIST %WAF_PROXY_SCRIPT% GOTO wafProxyScriptNotFound 
 
-CALL "%PYTHON_PATH_ABS%" "%WAF_PROXY_SCRIPT%" "-wrdlib" "%ROOT_WAF_LIB_DIR_ABS%" "-cwd" "%WORKING_DIR_ABS%" "--environment" "%ENVIRONMENT%" "--ide" "%IDE%" "--compiler" "%COMPILER%" "--out" "%BUILD_DIR_ABS%" "--appname" "%APPNAME%" "--wrd" "%WAF_ROOT_DIR%" "--no-lock-in-top" "--no-lock-in-run" %*
+CALL "%PYTHON_PATH_ABS%" "%WAF_PROXY_SCRIPT%"  "-wrdlib" "%ROOT_WAF_LIB_DIR_ABS%" "-cwd" "%WORKING_DIR_ABS%" "--environment=%ENVIRONMENT%" "--ide=%IDE%" "--compiler=%COMPILER%" "--out=%BUILD_DIR_ABS%" "--appname=%APPNAME%" "--wrd=%WAF_ROOT_DIR%" "--no-lock-in-top" "--no-lock-in-run" %*
 EXIT /B
 
 :pythonNotFound

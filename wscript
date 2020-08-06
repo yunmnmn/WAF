@@ -19,9 +19,10 @@ def CreateConfigurations(ctx):
    # Read and initialize all the confic files
    ####################################################################
    # Read all the BuildTarget settings, and set all the global variables
-   project_configure.ReadBuildTargetsData(ctx.options.wrd + "\\" + 'Configurations.json')
+   wafRootDir = ctx.options.wrd
+   project_configure.ReadBuildTargetsData(wafRootDir + "\\" + 'Configurations.json')
    # Read all the build settings, and set all the global variables
-   project_configure.ReadBuildSettingsData(ctx.options.wrd + "\\" + 'BuildSettings.json')
+   project_configure.ReadBuildSettingsData(wafRootDir + "\\" + 'BuildSettings.json')
    # Create the build configuration commands
    ####################################################################
    # Create WAF configurations(e.g cmd = clean_win_x64_debug, variant = win_x64_debug)
@@ -34,6 +35,7 @@ def CreateConfigurations(ctx):
                class tmp(y):  
                   cmd = className + '_' + variantName
                   variant = variantName
+
 
 # WAF specific code from here
 ####################################################################
