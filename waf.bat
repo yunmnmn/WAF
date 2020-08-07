@@ -62,6 +62,10 @@ EXIT /B
 REM Helper function to convert relative path to absolute. Absolute stays absolute
 :NORMALIZEPATH
    SET RETVAL=%~dpfn1
+   REM remove trailing spaces
+   IF %RETVAL:~-1%==" " SET RETVAL=%RETVAL:~0,-1%
+   REM remove trailing slashes
+   IF %RETVAL:~-1%==\ SET RETVAL=%RETVAL:~0,-1%
    SET %~2=%RETVAL%
    REM For debugging purposes
    REM ECHO %RETVAL%
